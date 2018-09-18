@@ -9,8 +9,6 @@
 #include <iostream>
 
 
-
-
 struct VirtualPage {
     unsigned int id;
     unsigned int index;
@@ -29,7 +27,7 @@ struct Query {
     const VirtualPage virtualPage;
     const QueryType type;
 
-    Query(VirtualPage virtualPage, QueryType type);
+    Query(const VirtualPage& virtualPage, const QueryType& type);
 };
 
 std::ostream& operator<<(std::ostream& os, const VirtualPage& virtualPage);
@@ -44,7 +42,7 @@ public:
 private:
     std::set<unsigned int> workingSet;
     std::set<unsigned int> notWorkingSet;
-    const unsigned int workingSetDuration = 8;
+    static const unsigned int workingSetDuration = 10;
     unsigned int cyclesWithCurrentWorkingSet = 0;
 
 public:

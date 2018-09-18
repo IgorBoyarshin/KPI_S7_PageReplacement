@@ -4,8 +4,7 @@
 VirtualPage::VirtualPage(unsigned int id, unsigned int index) : id(id), index(index) {}
 
 
-Query::Query(VirtualPage virtualPage, QueryType type) :
-    virtualPage(virtualPage), type(type) {}
+Query::Query(const VirtualPage& virtualPage, const QueryType& type) : virtualPage(virtualPage), type(type) {}
 
 
 bool operator==(const VirtualPage& lhs, const VirtualPage& rhs) {
@@ -27,15 +26,11 @@ Query Process::generateQuery() {
         createWorkingSet(); // new
     }
 
-    const bool fromWorkingSet = randInt(1, 10) < 7; // 90%
-    std::set<unsigned int>::const_iterator it{
-        (fromWorkingSet ? workingSet : notWorkingSet).begin()
-    };
-    const unsigned int pageIndex = randInt(0,
-            (fromWorkingSet ? workingSet.size() : notWorkingSet.size()) - 1);
+    const QueryType queryType = (randInt(0, 1) == 0) ? QueryType::Read : QueryType::Modification;
+    const bool fromWorkingSet = randInt(1, 10) <= 9; // 90%
+    std::set<unsigned int>::const_iterator it = (fromWorkingSet ? workingSet : notWorkingSet).begin();
+    const unsigned int pageIndex = randInt(0,   (fromWorkingSet ? workingSet : notWorkingSet).size() - 1);
     advance(it, pageIndex);
-    const bool read = randInt(0, 1) == 0;
-    const QueryType queryType = read ? QueryType::Read : QueryType::Modification;
 
     const Query query(VirtualPage(id, *it), queryType);
     std::cout << "Generated query"
@@ -47,17 +42,14 @@ Query Process::generateQuery() {
 
 
 void Process::createWorkingSet() {
-    const unsigned int deviation = pagesCount / 4;
-    const unsigned int r = randInt(0, 2 * deviation);
-    const unsigned int workingSetSize =
-        pagesCount / 2 - deviation + r;
+    const unsigned int workingSetSize = pagesCount / 4;
 
     workingSet.clear();
-    notWorkingSet.clear();
     for (unsigned int i = 0; i < workingSetSize; i++) {
         const unsigned int index = randInt(0, pagesCount - 1);
         workingSet.insert(index);
     }
+    notWorkingSet.clear();
     for (unsigned int i = 0; i < pagesCount; i++) {
         if (workingSet.find(i) == workingSet.end()) {
             notWorkingSet.insert(i);
